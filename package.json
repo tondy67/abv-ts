@@ -1,0 +1,34 @@
+{
+  "name": "abv-ts",
+  "version": "0.0.1",
+  "description": "Debugging and typechecks app. Works in Node.js and browsers",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/*.js"
+  },
+  "keywords": [
+    "typesafe",
+    "type",
+    "typecheck",
+    "debug",
+    "log",
+    "abvos"
+  ],
+  "author": {
+    "name": "Todor Angelov",
+    "email": "abv@tondy.org",
+    "url": "http://tondy.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tondy67/abv-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tondy67/abv-ts/issues"
+  },
+  "homepage": "https://github.com/tondy67/abv-ts#readme",
+  "devDependencies": {
+    "mocha": "^4.0.0"
+  }
+}
