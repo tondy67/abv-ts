@@ -2,6 +2,9 @@
   "name": "abv-ts",
   "version": "0.0.1",
   "description": "Debugging and typechecks app. Works in Node.js and browsers",
+  "engines": {
+    "node": ">=6.11.3"
+  },
   "main": "index.js",
   "scripts": {
     "test": "mocha test/*.js"
