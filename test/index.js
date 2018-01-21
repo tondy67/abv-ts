@@ -76,7 +76,7 @@ describe('Debug: ts.debug()', function() {
 
 	describe('environment', function() {
 		it('browser', function() {
-			ts1.set({level:'error',color:true});
+			ts1.set({level:'error',color:true,browser:true});
 			let r = ts1.error('error');
 			assert.equal(r, _error_c, 'print> ' + _error_c);
 	  	});

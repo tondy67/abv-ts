@@ -8,7 +8,13 @@
 
 const log = console.log.bind(console);
 
-const $isBrowser = typeof window !== "undefined" && window;
+const $fn = 'function';
+const $o  = 'object';
+const $s  = 'string';
+const $ud = "undefined";
+const $uk = 'Unknown';
+
+const $isBrowser = typeof window !== $ud && window;
 const $isInspector = $isBrowser ? false : process.execArgv.indexOf('--inspect') !== -1;
 
 const $no 		= 'no';
@@ -19,6 +25,7 @@ const $info 	= 'info';
 const $debug 	= 'debug';
 
 const $levels 	= [$no, $error, $warn, $log, $info, $debug];
+Object.freeze($levels);
 
 const $red 		= 'red';
 const $blue 	= 'blue';
@@ -28,32 +35,35 @@ const $orange 	= 'orange';
 const $magenta	= 'magenta';
 const $cyan		= 'cyan';
 const $gray		= 'gray';
+const $black	= 'black';
+const $white	= 'white';
 
 const $colors 	= [$red, $blue, $green, $orange, $magenta, $cyan, $gray];
+Object.freeze($colors);
 
-const Reset 	= "\x1b[0m"; 
-const Bold  	= "\x1b[1m"; 
-const Dim 		= "\x1b[2m"; 
-const Underline	= "\x1b[4m"; 
-const Blink 	= "\x1b[5m"; 
-const Reverse 	= "\x1b[7m"; 
-const Hidden 	= "\x1b[8m"; 
-const FgBlack 	= "\x1b[30m"; 
-const FgRed 	= "\x1b[31m"; 
-const FgGreen 	= "\x1b[32m"; 
-const FgYellow 	= "\x1b[33m"; 
-const FgBlue 	= "\x1b[34m"; 
-const FgMagenta = "\x1b[35m"; 
-const FgCyan 	= "\x1b[36m"; 
-const FgWhite 	= "\x1b[37m"; 
-const BgBlack 	= "\x1b[40m"; 
-const BgRed 	= "\x1b[41m"; 
-const BgGreen 	= "\x1b[42m"; 
-const BgYellow 	= "\x1b[43m"; 
-const BgBlue 	= "\x1b[44m"; 
-const BgMagenta = "\x1b[45m"; 
-const BgCyan 	= "\x1b[46m"; 
-const BgWhite 	= "\x1b[47m";
+const $Reset 	= "\x1b[0m"; 
+const $Bold  	= "\x1b[1m"; 
+const $Dim 		= "\x1b[2m"; 
+const $Underline	= "\x1b[4m"; 
+const $Blink 	= "\x1b[5m"; 
+const $Reverse 	= "\x1b[7m"; 
+const $Hidden 	= "\x1b[8m"; 
+const $FgBlack 	= "\x1b[30m"; 
+const $FgRed 	= "\x1b[31m"; 
+const $FgGreen 	= "\x1b[32m"; 
+const $FgYellow = "\x1b[33m"; 
+const $FgBlue 	= "\x1b[34m"; 
+const $FgMagenta = "\x1b[35m"; 
+const $FgCyan 	= "\x1b[36m"; 
+const $FgWhite 	= "\x1b[37m"; 
+const $BgBlack 	= "\x1b[40m"; 
+const $BgRed 	= "\x1b[41m"; 
+const $BgGreen 	= "\x1b[42m"; 
+const $BgYellow = "\x1b[43m"; 
+const $BgBlue 	= "\x1b[44m"; 
+const $BgMagenta = "\x1b[45m"; 
+const $BgCyan 	= "\x1b[46m"; 
+const $BgWhite 	= "\x1b[47m";
 
 let $instances = 0|0;
 
@@ -78,21 +88,24 @@ const $diff = (arr) => {
 const $clr2c = (c, bg=false) => {
 		let r = c;
 		if ($isBrowser || $isInspector) return r;
-
-		if (c === $red) 		r = bg ? BgRed:FgRed;
-		else if (c === $blue) 	r = bg ? BgBlue:FgBlue;
-		else if (c === $green) 	r = bg ? BgGreen:FgGreen;
-		else if (c === $orange) r = bg ? BgYellow:FgYellow;
-		else if (c === $yellow) r = bg ? BgYellow:FgYellow;
-		else if (c === $magenta)r = bg ? BgMagenta:FgMagenta;
-		else if (c === $cyan) 	r = bg ? BgCyan:FgCyan;
-		else if (c === $gray) 	r = bg ? BgWhite:Dim;
+		
+		if (!c) r = $Reset;
+		else if (c === $red) 	r = bg ? $BgRed:$FgRed;
+		else if (c === $blue) 	r = bg ? $BgBlue:$FgBlue;
+		else if (c === $green) 	r = bg ? $BgGreen:$FgGreen;
+		else if (c === $orange) r = bg ? $BgYellow:$FgYellow;
+		else if (c === $yellow) r = bg ? $BgYellow:$FgYellow;
+		else if (c === $magenta)r = bg ? $BgMagenta:$FgMagenta;
+		else if (c === $cyan) 	r = bg ? $BgCyan:$FgCyan;
+		else if (c === $gray) 	r = bg ? $BgWhite:$Dim;
+		else if (c === $black) 	r = bg ? $BgBlack:$FgBlack;
+		else if (c === $white) 	r = bg ? $BgWhite:$FgWhite;
 		
 		return r;
 	};
 	
 const $toString = (obj) => {
-		let r = "[object]";
+		let r = "[" + $o + "]";
 		try{ r = JSON.stringify(obj); }catch(e){}
 		return r;
 	};
@@ -127,10 +140,25 @@ const $str2ab = (str) => {
 		return buf;
 	};
 
+const $print = (s,color,bg) => {
+		s = $is(s,String) ? s : String(s);
+		if ($isBrowser){
+			log(s); // TODO: colors
+		}else{
+			if (color){
+				s = $clr2c(color) + s + $Reset;
+				if (bg) s = $clr2c(bg,true) + s;
+			}
+			process.stdout.write(s);
+		}
+	};
+	
+
 const $out = (str, name, color, bg, dt) => {
 		let s = '';
-		const time = $opt.time ? ' +' + dt : '';
-
+		let time = $opt.time ? ' +' + dt : '';
+		if (!dt) time = '';
+		
 		if (!$opt.color){
 			s = name + ': ' + str + time;
 			if (!$opt.test) log(s);
@@ -139,20 +167,31 @@ const $out = (str, name, color, bg, dt) => {
 			if (!$opt.test) log(s,'background: ' + $clr2c(bg,true) +
 				'; color: white', 'color: ' + $clr2c(color));
 		}else{
-			s = $clr2c(bg,true) + FgWhite + Bold + ' ' + name + ' ' +  
-				Reset + ' ' + $clr2c(color) + str + time + Reset;
+			if ($opt.test) bg = $red; 
+			s = $clr2c(bg,true) + $FgWhite + $Bold + ' ' + name + ' ' +  
+				$Reset + ' ' + $clr2c(color) + str + time + $Reset;
 
 			if (!$opt.test) log(s);
 		}
 		return s;
 	};
+
+const $cast = (arg,type) => {
+		let r;
+		if ($is(arg,type)){
+			r = arg; // TODO: cast
+		}else{
+			throw new TypeError('Cast error');
+		}
+		return r;
+	};
 	
 const $is = (arg,type) => {
 		let r = false;
-		if ((typeof arg === 'undefined') || !type) return r;
+		if (typeof arg === $ud || typeof type === $ud) return r;
 		
 		if (type === String){
-			r = typeof arg === 'string' || arg instanceof String;
+			r = typeof arg === $s || arg instanceof String;
 		}else if (type === ArrayBuffer){
 			r = arg instanceof ArrayBuffer;
 		}else if (type === Buffer){
@@ -177,52 +216,62 @@ const $is = (arg,type) => {
 			r = typeof arg === 'number';
 		}else if (type === Boolean){
 			r = typeof arg === 'boolean' || arg instanceof Boolean;
+		}else if (arg instanceof type){
+			r = true;
 		}else{
-			r = arg instanceof type;
+			r = $implements([arg,type,215]) === '';
 		}
+		
 		return r;	
 	};
 
 const $params = (args) => {
 		let r = '';
-		const a = [];
-		for (let i=1,len = args.length;i<len;i+=2){
+		const a = []; 
+		const len = args.length % 2 === 0 ? args.length : args.length-1;
+		for (let i=0;i<len;i+=2){
 			if (!$is(args[i],args[i+1])){
-				a.push('arg' + Math.round(i/2));
+				a.push('arg' + Math.round((i+1)/2));
 			}
 		}
-		if (a.length > 0) r = args[0] + ' TypeError: ' + a.join(', ');
+		const line = args.length > len ? args[len] + ' ': '';
+		if (a.length > 0) r = line + 'TypeError: ' + a.join(', ');
 		return r;
 	};
 
 const $implements = (args) => { // TODO: long story..
 		let r = '';
 		const a = [];
-		const ft = 'function';
-		const cls = typeof args[1] === ft ? new args[1](): args[1];
-		const cm = Object.getOwnPropertyNames(Object.getPrototypeOf(cls));
+		const ft = $fn;
+		let cls = typeof args[0] === ft ? new args[0](): args[0];
 		const cp = Array.from(Object.keys(cls));
-		const cn = ' ' + cls.constructor.name + '{}';
+		const cn = cls.constructor.name + '{}';
+		let cm = [];
+		do{
+			cm = cm.concat(Object.getOwnPropertyNames(cls));
+		}while (cls = Object.getPrototypeOf(cls));
 		let it, im, ip, d, n;
-		for (let i=2,len=args.length;i<len;i++){
+		const len = $is(args[args.length-1],'Int') ? args.length-1 : args.length;
+		for (let i=1;i<len;i++){
 			it = typeof args[i] === ft ? new args[i](): args[i];
 			n = it.constructor.name;
-			im = Object.getOwnPropertyNames(Object.getPrototypeOf(it));
+			im = Object.getOwnPropertyNames(Object.getPrototypeOf(it));//log(im);
 			ip = Array.from(Object.keys(it));
 			d = $intersec([cp,ip]); 
-			d = $diff([d,ip]);
+			d = $diff([d,ip]); 
 			if (d.length > 0) a.push(n + '{' + d + '}');
 			d = $intersec([cm,im]); 
 			d = $diff([d,im]);
 			if (d.length > 0) a.push(n + '(' + d + ')');
 		}
-		if (a.length > 0) r = args[0] + cn + ' missing: ' + a.join(', ');
-		
+		const line = args.length > len ? args[len] + ' ': '';
+		if (a.length > 0) r = line + cn + ' missing: ' + a.join(', ');
+
 		return r;	
 	};
 
 const $trim = (a) => { 
-		for (let i=0,len=a.length;i<len;i++) a[i] = a[i].trim(); 
+		for (let i in a) a[i] = a[i].trim(); 
 	};
 	
 const $parseOpt = (opt) => {
@@ -245,7 +294,7 @@ const $a2a = (args) => {
 		let r = [];
 		let s = '';
 		for (let i=0,len=args.length;i<len;i++){
-			if (typeof args[i] !== 'object'){
+			if (typeof args[i] !== $o){
 				r.push(args[i]);
 			}else{
 				r.push($toString(args[i]));
@@ -265,6 +314,16 @@ const $time = (ms) => {
 	  	let h = Math.floor(ms / 3600000);
 	  	return  (h + ":" + (m < 10 ? "0" : "") + m) + 'h';
 	};
+	
+// http://www.cse.yorku.ca/~oz/hash.html
+const $djb2 = (s) => {
+	if (!$is(s,String)) s = ''; 
+	let h = 5381|0;
+	for (let i in s) {
+		h = ((h << 5) + h) + s.charCodeAt(i); // h*33 + c 
+	}
+	return h;
+}
 
 const $opt = $parseOpt(($isBrowser?localStorage.debug:process.env.DEBUG)||'');
 $opt.color 	= true;
@@ -288,20 +347,55 @@ class Debug
 		if ($instances > $colors.length) $instances = 0;
 		this.now = Date.now(); 
 	}
+
+// common strings	
+	get fn(){ return $fn; }
+	get o(){ return $o; }
+	get s(){ return $s; }
+	get ud(){ return $ud; }
+	get uk(){ return $uk; }
+
+	get colors(){ return $colors; }
+
+	get levels(){ return $levels; }
+
+	get isBrowser(){ return $isBrowser; }
+
+	get isInspector(){ return $isInspector; } 
 	
-	rand() { return Math.random().toString(36).slice(2) + Date.now(); }
 	time(ms) { return $time(ms); }
-	trim(a) { $trim(a); }
+
+	trim(arr) { $trim(arr); }
+
 	toString(obj){ return $toString(obj); }
+
 	fromString(s){ return $fromString(s); }
+
 	ab2str(buf){ return $ab2str(buf); }
+
 	str2ab(str){ return $str2ab(str); }
-	isBrowser(){ return $isBrowser; }
-	isInspector(){ return $isInspector; } 
+
+	djb2(str){ return $djb2(str); }
+
+	clear(arr){ arr.length = 0; }
+
+	clr2c(c, bg=false){ return $clr2c(c,bg); }
+	
+	toJson(v) { return JSON.stringify(v,null,2); }
+	
+	print(s,color,bg) { $print(s,color,bg); }
+	
+	println(s,color,bg) { $print(s + '\n',color,bg); }
+
+	rand()
+	{ 
+		const t = $djb2(Date.now() + this.name);
+		return Math.random().toString(36).slice(2) + t; 
+	}
 
 	set(opt) 
 	{ 
-		if (typeof opt !== 'object') return;
+		if (typeof opt !== $o) return;
 		if (opt.level){
 			const ix = $levels.indexOf(opt.level);
 			if (ix !== -1) opt.level = this.level = ix;
@@ -350,12 +444,28 @@ class Debug
 		return $out($a2a(arguments),this.name,$green,this.bg,this.dt());
 	}
 	
+	type(v, stop)
+	{
+		if (this.level < 5 /*debug*/) return '';
+		var r = '';
+		if (v === null) r = 'null';
+		else if (v && v.constructor) r = v.constructor.name;
+		else r = typeof v;
+		$out([r],this.name,$red,this.bg,this.dt());
+		if (stop) throw new Error(String(stop));
+	}
+	
+	cast(arg,type)
+	{
+		return $cast(arg,type);
+	}
+	
 	is(arg,type)
 	{
 		return $is(arg,type);
 	}
 	
-	params(line,arg1,type1)
+	params(arg1,type1,line)
 	{
 		if (this.level < 5 /*debug*/) return true;
 		const s = $params(Array.from(arguments));
@@ -366,7 +476,7 @@ class Debug
 		return true;
 	}
 	
-	implements(line,type1)
+	implements(type,interface1,line)
 	{
 		if (this.level < 5 /*debug*/) return true;
 		const s = $implements(Array.from(arguments));
@@ -381,7 +491,7 @@ class Debug
 	{
 		const a = Array.from(arguments);
 		if (a.length < 2){
-			ts.error('arg2..?');
+			this.error('arg2..?');
 			return [];
 		}
 		return $intersec(a);
@@ -391,7 +501,7 @@ class Debug
 	{
 		const a = Array.from(arguments);
 		if (a.length < 2){
-			ts.error('arg2..?');
+			this.error('arg2..?');
 			return [];
 		}
 		return $diff(a);
@@ -401,7 +511,7 @@ class Debug
 	{
 		const a = Array.from(arguments);
 		if (a.length < 2){
-			ts.error('arg2..?');
+			this.error('arg2..?');
 			return [];
 		}
 		return $union(a);

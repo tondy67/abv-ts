@@ -67,62 +67,73 @@ class B
 }
 
 describe('Typechecks', function() {
-	describe('ts.params()', function() {
+	describe('ts.params(arg1,type1,line)', function() {
 		const ts1 = ts(name);
 		it('string == String', function() {
 			ts1.set({level:'debug'});
-			let r = ts1.params(100,_s1,String, new String(_s1),String);
+			let r = ts1.params(_s1,String, new String(_s1),String,74);
 			assert.equal(r, true, 'return> true');
 	  	});
 		it('buf == ArrayBuffer', function() {
 			ts1.set({level:'debug'});
-			let r = ts1.params(104,_buf,ArrayBuffer);
+			let r = ts1.params(_buf,ArrayBuffer,79);
 			assert.equal(r, true, 'return> true');
 	  	});
 		it('string == String, buf != String', function() {
 			ts1.set({level:'debug'});
-			let r = ts1.params(108,_s1,String, _buf,String);
+			let r = ts1.params(_s1,String, _buf,String,84);
 			assert.equal(r, false, 'return> false');
 	  	});
 		it('true == Boolean', function() {
 			ts1.set({level:'debug'});
-			let r = ts1.params(112,true,Boolean, new Boolean(true),Boolean);
+			let r = ts1.params(true,Boolean, new Boolean(true),Boolean,89);
 			assert.equal(r, true, 'return> true');
 	  	});
 		it('123 == Number, "123" != Number', function() {
 			ts1.set({level:'debug'});
-			let r = ts1.params(116,123,Number, "123", Number);
+			let r = ts1.params(123,Number, "123", Number,94);
 			assert.equal(r, false, 'return> false');
 	  	});
 		it('[str,str] == [String]', function() {
 			ts1.set({level:'debug'});
-			let r = ts1.params(120,_a1,[String]);
+			let r = ts1.params(_a1,[String],99);
 			assert.equal(r, true, 'return> true');
 	  	});
 		it('[u8,u8] == [Uint8Array]', function() {
-			let r = ts1.params(124,_a2,[Uint8Array]);
+			let r = ts1.params(_a2,[Uint8Array],103);
 			assert.equal(r, true, 'return> true');
 	  	});
 		it('[str,u8] != [String]', function() {
 			ts1.set({level:'debug'});
-			let r = ts1.params(128,_a3,[String]);
+			let r = ts1.params(_a3,[String],108);
 			assert.equal(r, false, 'return> false');
 	  	});
 	});
 
-	describe('ts.implements()', function() {
+	describe('ts.implements(type,interface1,line)', function() {
 		const ts1 = ts(name);
 		it('class A not implements Ia', function() {
 			ts1.set({level:'debug'});
-			let r = ts1.implements(110,A,Ia);
+			let r = ts1.implements(A,Ia,117);
 			assert.equal(r, false, 'return> false');
 	  	});
 		it('class B implements Ia, Ib', function() {
 			ts1.set({level:'debug'});
-			let r = ts1.implements(115,B,Ia,Ib);
+			let r = ts1.implements(B,Ia,Ib);
 			assert.equal(r, true, 'return> true');
 	  	});
 	});
 
+	describe('ts.is(arg,type)', function() {
+		const ts1 = ts(name);
+		it('class A is not type Ia', function() {
+			let r = ts1.is(A,Ia);
+			assert.equal(r, false, 'return> false');
+	  	});
+		it('class B is type Ib', function() {
+			let r = ts1.is(B,Ib);
+			assert.equal(r, true, 'return> true');
+	  	});
+	});
 
 });
