@@ -9,10 +9,13 @@
 const log = console.log.bind(console);
 
 const $fn = 'function';
-const $o  = 'object';
-const $s  = 'string';
+const $obj  = 'object';
+const $str  = 'string';
 const $ud = "undefined";
 const $uk = 'Unknown';
+const $int = 'Int';
+const $float = 'Float';
+const $sc = 'Static class!';
 
 const $isBrowser = typeof window !== $ud && window;
 const $isInspector = $isBrowser ? false : process.execArgv.indexOf('--inspect') !== -1;
@@ -67,6 +70,10 @@ const $BgWhite 	= "\x1b[47m";
 
 let $instances = 0|0;
 
+const $sum = (arr) => {
+		return arr.reduce(function(a, b) { return a + b; }, 0);
+	};
+	
 const $intersec = (arr) => {
 		return arr.reduce((prev, cur) => {
 			const s = new Set(cur);
@@ -105,7 +112,7 @@ const $clr2c = (c, bg=false) => {
 	};
 	
 const $toString = (obj) => {
-		let r = "[" + $o + "]";
+		let r = "[" + $obj + "]";
 		try{ r = JSON.stringify(obj); }catch(e){}
 		return r;
 	};
@@ -134,7 +141,7 @@ const $str2ab = (str) => {
 		if (!$is(str,String)) str = "-1";
 		const buf = new ArrayBuffer(str.length*2);
 		const dv = new DataView(buf);
-		for (let i=0, len=str.length; i<len; i++) {
+		for (let i in str) {
 			dv.setUint16(i*2,str.charCodeAt(i));
 		}
 		return buf;
@@ -143,7 +150,7 @@ const $str2ab = (str) => {
 const $print = (s,color,bg) => {
 		s = $is(s,String) ? s : String(s);
 		if ($isBrowser){
-			log(s); // TODO: colors
+			log(s);
 		}else{
 			if (color){
 				s = $clr2c(color) + s + $Reset;
@@ -188,10 +195,10 @@ const $cast = (arg,type) => {
 	
 const $is = (arg,type) => {
 		let r = false;
-		if (typeof arg === $ud || typeof type === $ud) return r;
+		if ((typeof arg === $ud) || (typeof type === $ud)) return r;
 		
 		if (type === String){
-			r = typeof arg === $s || arg instanceof String;
+			r = typeof arg === $str || arg instanceof String;
 		}else if (type === ArrayBuffer){
 			r = arg instanceof ArrayBuffer;
 		}else if (type === Buffer){
@@ -200,7 +207,7 @@ const $is = (arg,type) => {
 			if (type.length !== 1){
 			}else if (arg instanceof Array){
 				let c = true;
-				for(let i=0,len=arg.length;i<len;i++){
+				for(let i in arg){
 					if (!$is(arg[i],type[0])){
 						c = false;
 						break;
@@ -208,9 +215,9 @@ const $is = (arg,type) => {
 				}
 				if (c) r = true;
 			}			
-		}else if (type === 'Int'){
+		}else if (type === $int){
 			r = Number.isInteger(arg);
-		}else if (type === 'Float'){
+		}else if (type === $float){
 			r = Number.isFinite(arg) && !Number.isInteger(arg);
 		}else if (type === Number){
 			r = typeof arg === 'number';
@@ -251,7 +258,7 @@ const $implements = (args) => { // TODO: long story..
 			cm = cm.concat(Object.getOwnPropertyNames(cls));
 		}while (cls = Object.getPrototypeOf(cls));
 		let it, im, ip, d, n;
-		const len = $is(args[args.length-1],'Int') ? args.length-1 : args.length;
+		const len = $is(args[args.length-1], $int) ? args.length-1 : args.length;
 		for (let i=1;i<len;i++){
 			it = typeof args[i] === ft ? new args[i](): args[i];
 			n = it.constructor.name;
@@ -293,8 +300,8 @@ const $parseOpt = (opt) => {
 const $a2a = (args) => { 
 		let r = [];
 		let s = '';
-		for (let i=0,len=args.length;i<len;i++){
-			if (typeof args[i] !== $o){
+		for (let i in args){
+			if (typeof args[i] !== $obj){
 				r.push(args[i]);
 			}else{
 				r.push($toString(args[i]));
@@ -323,7 +330,7 @@ const $djb2 = (s) => {
 		h = ((h << 5) + h) + s.charCodeAt(i); // h*33 + c 
 	}
 	return h;
-}
+};
 
 const $opt = $parseOpt(($isBrowser?localStorage.debug:process.env.DEBUG)||'');
 $opt.color 	= true;
@@ -349,11 +356,26 @@ class Debug
 	}
 
 // common strings	
-	get fn(){ return $fn; }
-	get o(){ return $o; }
-	get s(){ return $s; }
-	get ud(){ return $ud; }
-	get uk(){ return $uk; }
+	get FN(){ return $fn; }
+	get OBJ(){ return $obj; }
+	get STR(){ return $str; }
+	get UD(){ return $ud; }
+	get UK(){ return $uk; }
+	get INT(){ return $int; }
+	get FLOAT(){ return $float; }
+	get SC(){ return $sc; }
+
+// colors
+	get RED 	() { return $red; }
+	get BLUE 	() { return $blue; }
+	get GREEN 	() { return $green; }
+	get YELLOW 	() { return $yellow; }
+	get ORANGE 	() { return $orange; }
+	get MAGENTA	() { return $magenta; }
+	get CYAN	() { return $cyan; }
+	get GRAY	() { return $gray; }
+	get BLACK	() { return $black; }
+	get WHITE	() { return $white; }
 
 	get colors(){ return $colors; }
 
@@ -395,7 +417,7 @@ class Debug
 
 	set(opt) 
 	{ 
-		if (typeof opt !== $o) return;
+		if (typeof opt !== $obj) return;
 		if (opt.level){
 			const ix = $levels.indexOf(opt.level);
 			if (ix !== -1) opt.level = this.level = ix;
@@ -446,8 +468,8 @@ class Debug
 	
 	type(v, stop)
 	{
-		if (this.level < 5 /*debug*/) return '';
-		var r = '';
+		let r = '';
+		if (this.level < 5 /*debug*/) return r;
 		if (v === null) r = 'null';
 		else if (v && v.constructor) r = v.constructor.name;
 		else r = typeof v;
@@ -516,6 +538,8 @@ class Debug
 		}
 		return $union(a);
 	}
+	
+	sum(arr) { return $sum(arr); }
 	
 }
 
