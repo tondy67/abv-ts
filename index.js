@@ -1,5 +1,6 @@
 /**
  * Abvos Debug
+ * https://github.com/tondy67/abv-ts
  */
 "use strict";
 
@@ -277,6 +278,12 @@ const $implements = (args) => { // TODO: long story..
 		return r;	
 	};
 
+const $add = (str, end, start=null) => { 
+	str = str.endsWith(end) ? str : str + end;
+	if (start) str = str.startsWith(start) ? str : start + str; 
+	return str;
+};
+
 const $trim = (a) => { 
 		for (let i in a) a[i] = a[i].trim(); 
 	};
@@ -385,8 +392,14 @@ class Debug
 
 	get isInspector(){ return $isInspector; } 
 	
+	range(val, max, min=0){ return (val >= min) && (val < max); }
+	
 	time(ms) { return $time(ms); }
 
+	rs(str) { return str.replace(/\/\/+/g, '/'); }
+	
+	add(str, end, start=null) { return $add(str, end, start); }
+	
 	trim(arr) { $trim(arr); }
 
 	toString(obj){ return $toString(obj); }

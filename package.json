@@ -1,6 +1,6 @@
 {
   "name": "abv-ts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Debugging and typechecks app. Works in Node.js and browsers",
   "engines": {
     "node": ">=6.11.3"
