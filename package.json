@@ -1,6 +1,6 @@
 {
   "name": "abv-ts",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Debugging and typechecks app. Works in Node.js and browsers",
   "engines": {
     "node": ">=6.11.3"
@@ -32,6 +32,6 @@
   },
   "homepage": "https://github.com/tondy67/abv-ts#readme",
   "devDependencies": {
-    "mocha": "^4.0.0"
+    "mocha": "^5.1.1"
   }
 }
